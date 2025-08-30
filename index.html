@@ -28,7 +28,7 @@
     .gallery{display:grid; grid-template-columns:repeat(2,1fr); gap:8px}
     @media(min-width:620px){.gallery{grid-template-columns:repeat(3,1fr)}}
     .gallery a{position:relative; display:block; border-radius:12px; overflow:hidden; border:1px solid var(--line)}
-    .gallery img,.gallery video{width:100%; height:180px; object-fit:cover; display:block; background:#0b0b0b}
+    .gallery img,.gallery video,.gallery iframe{width:100%; height:180px; object-fit:cover; display:block; background:#0b0b0b}
     .pricing{display:grid; gap:12px}
     @media(min-width:720px){.pricing{grid-template-columns:repeat(3,1fr)}}
     .price-card{padding:16px; border:1px solid var(--line); border-radius:16px; background:linear-gradient(180deg,#12141a,#0f1117)}
@@ -68,7 +68,16 @@
     <section id="work" class="card">
       <h2>Recent Work</h2>
       <div class="gallery" id="gallery"></div>
-      <p class="muted">Drop files into <code>media/</code> in this repo. The gallery auto‑loads images and videos from that folder.</p>
+      <details style="margin-top:8px"><summary class="muted">How to connect a Google Drive folder</summary>
+        <ol class="muted">
+          <li>Create a folder in Google Drive. Put photos/videos inside.</li>
+          <li>Right‑click folder → <strong>Share</strong> → set to <strong>Anyone with the link</strong>.</li>
+          <li>Copy the folder URL. The ID is the long string after <code>/folders/</code>.</li>
+          <li>Create a Google Cloud Project → enable <strong>Google Drive API</strong> → create an <strong>API key</strong>. Restrict it by HTTP referrer to your site.</li>
+          <li>Paste your <code>DRIVE_FOLDER_ID</code> and <code>GOOGLE_API_KEY</code> into the script config below and deploy.</li>
+        </ol>
+      </details>
+      <p class="muted">This page will list images and videos from that folder automatically. Repo <code>media/</code> remains as fallback.</p>
     </section>
 
     <section id="pricing" class="card">
@@ -148,28 +157,87 @@
   </div>
 
   <script>
-    // Auto-detect owner and repo for GitHub Pages
+    // ---------- CONFIG ----------
+    // Optional: pull from a Google Drive folder. Set both values.
+    const DRIVE_FOLDER_ID = '';
+    const GOOGLE_API_KEY = '';
+
+    // Fallback: still load from this repo's /media folder.
+
+    // ---------- Helpers ----------
     function detectRepo(){
       const host = window.location.hostname; // e.g. username.github.io
-      const parts = host.split('.');
-      const owner = parts[0];
-      const path = window.location.pathname.replace(/\/+$/,'');
-      const segs = path.split('/').filter(Boolean);
-      // User/Org site: repo is <owner>.github.io
-      // Project site: repo is first path segment
+      const owner = host.split('.')[0];
+      const segs = window.location.pathname.replace(/\/+$/,'').split('/').filter(Boolean);
       const repo = segs.length > 0 ? segs[0] : `${owner}.github.io`;
       return { owner, repo };
     }
 
-    // Build gallery from GitHub API directory listing
-    async function loadMediaIntoGallery(){
-      const { owner, repo } = detectRepo();
-      const url = `https://api.github.com/repos/${owner}/${repo}/contents/media`;
+    function drivePreviewUrl(id){ return `https://drive.google.com/file/d/${id}/preview`; }
+    function driveDownloadUrl(id){ return `https://drive.google.com/uc?export=download&id=${id}`; }
+
+    // ---------- Drive Loader ----------
+    async function listDriveFolderFiles(folderId, apiKey){
+      const base = 'https://www.googleapis.com/drive/v3/files';
+      const q = encodeURIComponent(`'${folderId}' in parents and (mimeType contains 'image/' or mimeType contains 'video/') and trashed=false`);
+      const fields = encodeURIComponent('nextPageToken,files(id,name,mimeType)');
+      let pageToken = '';
+      const out = [];
+      for(let i=0;i<5;i++){ // up to ~500 files
+        const url = `${base}?q=${q}&fields=${fields}&orderBy=modifiedTime desc&pageSize=100${pageToken?`&pageToken=${pageToken}`:''}&key=${apiKey}`;
+        const res = await fetch(url);
+        if(!res.ok) throw new Error('Drive API error '+res.status);
+        const data = await res.json();
+        out.push(...(data.files||[]));
+        if(!data.nextPageToken) break; else pageToken = data.nextPageToken;
+      }
+      return out;
+    }
+
+    async function renderDriveGallery(){
       const gallery = document.getElementById('gallery');
-      gallery.innerHTML = '<p class="muted">Loading media…</p>';
+      if(!DRIVE_FOLDER_ID || !GOOGLE_API_KEY) return false;
       try{
+        gallery.innerHTML = '<p class="muted">Loading Google Drive folder…</p>';
+        const files = await listDriveFolderFiles(DRIVE_FOLDER_ID, GOOGLE_API_KEY);
+        if(!files.length){ gallery.innerHTML = '<p class="muted">Drive folder is empty or not shared publicly.</p>'; return true; }
+        gallery.innerHTML = '';
+        files.forEach(f=>{
+          const isImage = f.mimeType && f.mimeType.startsWith('image/');
+          const isVideo = f.mimeType && f.mimeType.startsWith('video/');
+          const a = document.createElement('a');
+          a.href = isVideo ? drivePreviewUrl(f.id) : driveDownloadUrl(f.id);
+          a.target = '_blank'; a.rel='noopener';
+          if(isImage){
+            const img = document.createElement('img');
+            img.src = driveDownloadUrl(f.id);
+            img.alt = f.name;
+            a.appendChild(img);
+          } else if(isVideo){
+            const iframe = document.createElement('iframe');
+            iframe.src = drivePreviewUrl(f.id);
+            iframe.allow = 'autoplay; encrypted-media';
+            iframe.loading = 'lazy';
+            iframe.referrerPolicy = 'no-referrer';
+            a.appendChild(iframe);
+          }
+          gallery.appendChild(a);
+        });
+        return true;
+      }catch(e){
+        document.getElementById('gallery').innerHTML = '<p class="muted">Could not load Google Drive. Check API key, folder sharing, or referrer restrictions.</p>';
+        return true; // handled
+      }
+    }
+
+    // ---------- Repo /media fallback ----------
+    async function renderRepoGallery(){
+      const { owner, repo } = detectRepo();
+      const gallery = document.getElementById('gallery');
+      try{
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/media`;
         const res = await fetch(url, {headers:{'Accept':'application/vnd.github+json'}});
-        if(!res.ok) throw new Error('HTTP '+res.status);
+        if(!res.ok) return false;
         const data = await res.json();
         const files = Array.isArray(data) ? data.filter(x=>x.type==='file') : [];
         const imgExt = ['.jpg','.jpeg','.png','.webp','.gif','.avif'];
@@ -178,35 +246,34 @@
           const name = f.name.toLowerCase();
           return imgExt.some(e=>name.endsWith(e)) || vidExt.some(e=>name.endsWith(e));
         });
-        if(items.length===0){
-          gallery.innerHTML = '<p class="muted">No media found in <code>media/</code>. Add files and refresh.</p>';
-          return;
-        }
+        if(items.length===0) return false;
         gallery.innerHTML='';
-        for(const it of items){
-          const href = it.download_url; // raw file URL
+        items.forEach(it=>{
           const name = it.name.toLowerCase();
           const a = document.createElement('a');
-          a.href = href; a.target = '_blank'; a.rel='noopener';
-          if(imgExt.some(e=>name.endsWith(e))){
-            const img = document.createElement('img');
-            img.src = href; img.alt = it.name;
-            a.appendChild(img);
+          a.href = it.download_url; a.target = '_blank'; a.rel='noopener';
+          if(/\.(jpg|jpeg|png|webp|gif|avif)$/.test(name)){
+            const img = document.createElement('img'); img.src = it.download_url; img.alt = it.name; a.appendChild(img);
           } else {
-            const v = document.createElement('video');
-            v.src = href; v.controls = true; v.playsInline = true; v.muted = true;
-            a.appendChild(v);
+            const v = document.createElement('video'); v.src = it.download_url; v.controls = true; v.playsInline = true; v.muted = true; a.appendChild(v);
           }
           gallery.appendChild(a);
-        }
-      }catch(err){
-        gallery.innerHTML = '<p class="muted">Could not load media. Ensure your repo is public or check rate limits.</p>';
-      }
+        });
+        return true;
+      }catch(e){ return false; }
     }
 
-    // Init
-    document.getElementById('year').textContent=new Date().getFullYear();
-    loadMediaIntoGallery();
+    // ---------- Init ----------
+    document.getElementById('year').textContent = new Date().getFullYear();
+    (async ()=>{
+      const usedDrive = await renderDriveGallery();
+      if(!usedDrive){
+        const ok = await renderRepoGallery();
+        if(!ok){
+          document.getElementById('gallery').innerHTML = '<p class="muted">Add media to Google Drive (configure in script) or to <code>media/</code> in this repo.</p>';
+        }
+      }
+    })();
   </script>
 </body>
 </html>
