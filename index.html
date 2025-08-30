@@ -199,7 +199,7 @@
       if(!DRIVE_FOLDER_ID || !GOOGLE_API_KEY) return false;
       try{
         gallery.innerHTML = '<p class="muted">Loading Google Drive folder…</p>';
-        const files = await listDriveFolderFiles(DRIVE_FOLDER_ID, GOOGLE_API_KEY);
+        const files = await listDriveFolderFiles(1I5dNP_QAf5WFEMTyBzmRWqy4ZNVi1bAz?, AIzaSyDAqilG-yMNqr6XjTm3fE6J-o1wwg9jIss);
         if(!files.length){ gallery.innerHTML = '<p class="muted">Drive folder is empty or not shared publicly.</p>'; return true; }
         gallery.innerHTML = '';
         files.forEach(f=>{
