@@ -1,46 +1,389 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Custom Website</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio & Booking</title>
+  <meta name="description" content="Responsive portfolio, pricing, availability calendar with time slots, and booking form." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    header {
-      background: #222;
-      color: #fff;
-      padding: 2rem 0;
-    }
-    main {
-      padding: 2rem;
-    }
-    footer {
-      background: #222;
-      color: #aaa;
-      padding: 1rem 0;
-      font-size: 0.9rem;
-    }
+    :root{ --bg:#0b0c0f; --panel:#12141a; --muted:#8a8f98; --text:#e7e9ee; --brand:#4ade80; --line:#1d212a; --ring:rgba(74,222,128,.45); --maxw:1100px; --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.35); }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,#0a0b0e, #0d1016);color:var(--text);font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:var(--maxw);margin:auto;padding:18px}
+    header.hero{display:grid;gap:16px;align-items:center;grid-template-columns:1fr; padding:22px; background:linear-gradient(180deg,rgba(74,222,128,.08),rgba(74,222,128,0)); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .hero h1{margin:0;font-size:clamp(26px,4vw,42px);letter-spacing:-.02em}
+    .hero p{margin:0;color:var(--muted)}
+    .cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .btn{appearance:none;border:1px solid var(--line); background:var(--panel); color:var(--text); padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer}
+    .btn.primary{background:var(--brand); color:#07220f; border-color:transparent}
+    .btn:focus{outline:2px solid var(--ring); outline-offset:2px}
+    section{margin:26px 0}
+    .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow)}
+    .grid{display:grid; gap:14px}
+    @media(min-width:800px){ header.hero{grid-template-columns:1.2fr .8fr} .grid.cols-2{grid-template-columns:1fr 1fr} .grid.cols-3{grid-template-columns:repeat(3,1fr)} }
+    .gallery{display:grid; grid-template-columns:repeat(2,1fr); gap:8px}
+    @media(min-width:620px){.gallery{grid-template-columns:repeat(3,1fr)}}
+    .gallery a{position:relative; display:block; border-radius:12px; overflow:hidden; border:1px solid var(--line)}
+    .gallery img, .gallery video{width:100%; height:180px; object-fit:cover; display:block; background:#0b0b0b}
+    .pricing{display:grid; gap:12px}
+    @media(min-width:720px){.pricing{grid-template-columns:repeat(3,1fr)}}
+    .price-card{padding:16px; border:1px solid var(--line); border-radius:16px; background:linear-gradient(180deg,#12141a,#0f1117)}
+    .price-card h3, .price-card h4{margin:0 0 6px 0}
+    .price{font-size:24px; font-weight:800}
+    .muted{color:var(--muted)}
+    .calendar{--cell:42px; display:grid; gap:10px}
+    .cal-header{display:flex; justify-content:space-between; align-items:center}
+    .cal-nav{display:flex; gap:8px}
+    .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:6px}
+    .dow{font-size:12px; color:var(--muted); text-align:center}
+    .day{height:var(--cell); display:flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--line); background:#0f1218; cursor:pointer; user-select:none}
+    .day.muted{opacity:.35}
+    .day.unavailable{background:#1a1e27; color:#777; text-decoration:line-through; cursor:not-allowed}
+    .day.selected{outline:2px solid var(--ring); background:#0f1812;}
+    form label{display:block; font-weight:600; margin:12px 0 6px}
+    input, textarea, select{width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:#0f1117; color:var(--text)}
+    .inline{display:flex; gap:10px; flex-wrap:wrap}
+    footer{color:var(--muted);font-size:14px; text-align:center; padding:20px}
   </style>
 </head>
 <body>
-  <header>
-    <h1>Welcome to My Website</h1>
-    <p>Coded by me, hosted for free</p>
-  </header>
+  <div class="wrap">
+    <header class="hero">
+      <div>
+        <h1>Work. Pricing. Availability. Bookings.</h1>
+        <p>Mobile‑first portfolio with a live availability calendar and bookable time slots. Optimised for phones and desktops.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="#book">Book now</a>
+          <a class="btn" href="#pricing">View pricing</a>
+          <a class="btn" href="mailto:bhatiiraza06@gmail.com">Email</a>
+          <a class="btn" target="_blank" rel="noopener" href="https://www.instagram.com/xe6ct_new/">Instagram</a>
+        </div>
+      </div>
+      <div class="card">
+        <strong>How to update availability</strong>
+        <ol>
+          <li>Create <code>availability.json</code> in your repo root.</li>
+          <li>Format:
+            <pre style="white-space:pre-wrap;word-break:break-word;background:#0d0f14;border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0">{
+  "unavailable": ["2025-09-10", "2025-09-15"],
+  "available_overrides": [],
+  "unavailable_slots": { "2025-09-12": ["12:00", "15:00"] },
+  "custom_slots": { "2025-09-20": ["10:00", "14:00", "18:30"] }
+}</pre>
+          </li>
+          <li>Commit. Calendar and time slots update automatically.</li>
+        </ol>
+        <p class="muted">Whole days go in <code>unavailable</code>. Use <code>unavailable_slots</code> for partial days or <code>custom_slots</code> to override default hours.</p>
+      </div>
+    </header>
 
-  <main>
-    <h2>About</h2>
-    <p>This is a simple custom website. I wrote all the HTML and CSS myself.</p>
-  </main>
+    <section id="work" class="card">
+      <h2 style="margin-top:0">Recent Work</h2>
+      <div class="gallery" id="gallery"></div>
+      <div class="muted" style="margin-top:8px">Update gallery items inside <code>MEDIA_ITEMS</code> in the script below. Supports images and MP4 video.</div>
+    </section>
 
-  <footer>
-    <p>&copy; 2025 My Website</p>
-  </footer>
+    <section id="pricing" class="card">
+      <h2 style="margin-top:0">Pricing</h2>
+
+      <div class="grid cols-2">
+        <div>
+          <h3>Single Services</h3>
+          <ul>
+            <li>Photoshoot only (15–20 edited images) — <strong>£120–£180</strong></li>
+            <li>Short video – Speedramp (20–40 sec) — <strong>£100–£150</strong></li>
+            <li>Short cinematic video (45–90 sec) — <strong>£150–£220</strong></li>
+            <li>Extended cinematic video (3–5 min) — <strong>£250–£400</strong></li>
+            <li>Photo + short video combo — <strong>£250–£350</strong></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Bundles</h3>
+          <div class="pricing">
+            <div class="price-card">
+              <h4>Basic Package</h4>
+              <div class="muted">Typical total <strong>£200–£250</strong></div>
+              <ul class="muted">
+                <li>10 edited photos</li>
+                <li>1× 60 sec cinematic reel</li>
+                <li>Local travel included (within 20 miles)</li>
+              </ul>
+            </div>
+            <div class="price-card">
+              <h4>Standard Package</h4>
+              <div class="muted">Typical total <strong>£350–£450</strong></div>
+              <ul class="muted">
+                <li>20–25 edited photos</li>
+                <li>1× 2–3 min cinematic video</li>
+                <li>BTS content for socials</li>
+                <li>Travel included up to 40 miles</li>
+              </ul>
+            </div>
+            <div class="price-card">
+              <h4>Premium Package</h4>
+              <div class="muted">Typical total <strong>£600–£800</strong></div>
+              <ul class="muted">
+                <li>30+ edited photos</li>
+                <li>2 videos (1 short reel + 1 extended cinematic film)</li>
+                <li>Rolling shots (client provides roller car + driver)</li>
+                <li>Multiple locations in one day (same region)</li>
+                <li>Travel included up to 80 miles</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px">
+        <h3>Add-ons</h3>
+        <ul>
+          <li>Extra photos — <strong>£10–£15 each</strong></li>
+          <li>Raw photo/video delivery — <strong>£50–£100</strong></li>
+          <li>Extra location (same day) — <strong>£50–£100</strong></li>
+          <li>Long-distance travel (100+ miles) — <strong>45p–60p per mile</strong> or <strong>£200/day</strong></li>
+        </ul>
+      </div>
+      <p class="muted">Adjust ranges as needed. Confirm final quote after enquiry.</p>
+    </section>
+
+    <section id="book" class="card">
+      <h2 style="margin-top:0">Check Availability & Book</h2>
+      <div class="calendar" id="calendar"></div>
+
+      <form id="bookingForm" style="margin-top:14px" method="POST" action="https://formspree.io/f/your-id-here">
+        <div class="inline">
+          <div style="flex:1; min-width:200px">
+            <label for="date">Selected date</label>
+            <input id="date" name="date" type="text" placeholder="DD/MM/YYYY" required readonly>
+          </div>
+          <div style="width:180px">
+            <label for="time">Time slot</label>
+            <select id="time" name="time" required>
+              <option value="" disabled selected>Select a date first</option>
+            </select>
+          </div>
+          <div style="width:200px">
+            <label for="package">Package</label>
+            <select id="package" name="package">
+              <option>Photoshoot only</option>
+              <option>Short video – Speedramp</option>
+              <option>Short cinematic video</option>
+              <option>Extended cinematic video</option>
+              <option>Photo + short video combo</option>
+              <option>Basic Package</option>
+              <option>Standard Package</option>
+              <option>Premium Package</option>
+            </select>
+          </div>
+        </div>
+        <label for="name">Your name</label>
+        <input id="name" name="name" type="text" required>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required>
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="4" placeholder="Location, specific requests, add-ons…"></textarea>
+        <div class="inline" style="margin-top:10px">
+          <button class="btn primary" type="submit">Request booking</button>
+          <a class="btn" href="mailto:bhatiiraza06@gmail.com?subject=Booking%20enquiry">Or email directly</a>
+        </div>
+        <p class="muted">Form sends to your inbox via Formspree. Replace the <code>action</code> with your endpoint.</p>
+      </form>
+    </section>
+
+    <section id="instagram" class="card">
+      <h2 style="margin-top:0">Instagram</h2>
+      <p>Follow <a target="_blank" rel="noopener" href="https://www.instagram.com/xe6ct_new/">@xe6ct_new</a>. For an embedded feed later, plug in a third‑party widget or Instagram Basic Display token.</p>
+    </section>
+
+    <section id="contact" class="card">
+      <h2 style="margin-top:0">Contact</h2>
+      <p>Email: <a href="mailto:bhatiiraza06@gmail.com">bhatiiraza06@gmail.com</a></p>
+      <p>Instagram: <a target="_blank" rel="noopener" href="https://www.instagram.com/xe6ct_new/">@xe6ct_new</a></p>
+      <a class="btn primary" href="mailto:bhatiiraza06@gmail.com?subject=Enquiry">Contact us</a>
+    </section>
+
+    <footer>
+      <div>&copy; <span id="year"></span> Portfolio & Booking</div>
+    </footer>
+  </div>
+
+  <script>
+    // -------- OWNER SETTINGS --------
+    // Default daily time slots. 24h format. Change as needed.
+    const DEFAULT_SLOTS = ["09:00","12:00","15:00","18:00"];
+
+    // Inline fallback if availability.json is not present.
+    const INLINE_AVAILABILITY = {
+      unavailable: [],                // Full days blocked (YYYY-MM-DD)
+      available_overrides: [],        // Force-open specific dates if you blocked a pattern
+      unavailable_slots: {},          // { "YYYY-MM-DD": ["12:00","15:00"] }
+      custom_slots: {}                // { "YYYY-MM-DD": ["10:00","14:00"] }
+    };
+
+    // Optional: prefill gallery with your own media URLs
+    const MEDIA_ITEMS = [
+      { type: 'image', src: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1200', alt: 'Sample photo 1' },
+      { type: 'image', src: 'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?w=1200', alt: 'Sample photo 2' },
+      { type: 'video', src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4', alt: 'Sample video' }
+    ];
+
+    // -------- UTILITIES --------
+    const UK = new Intl.DateTimeFormat('en-GB');
+    const pad = n => String(n).padStart(2,'0');
+    const toISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const toUK = d => UK.format(d); // DD/MM/YYYY
+
+    // -------- GALLERY RENDER --------
+    function renderGallery(){
+      const el = document.getElementById('gallery');
+      el.innerHTML = '';
+      MEDIA_ITEMS.forEach(item => {
+        const a = document.createElement('a');
+        a.href = item.src; a.target = '_blank'; a.rel='noopener';
+        if(item.type === 'video'){
+          const v = document.createElement('video'); v.src=item.src; v.controls=true; v.playsInline=true; v.muted=true;
+          v.setAttribute('aria-label', item.alt||'video');
+          a.appendChild(v);
+        } else {
+          const img = document.createElement('img'); img.src=item.src; img.alt=item.alt||'';
+          a.appendChild(img);
+        }
+        el.appendChild(a);
+      });
+    }
+
+    // -------- CALENDAR + SLOTS LOGIC --------
+    const calendarEl = document.getElementById('calendar');
+    const timeSelect = document.getElementById('time');
+    let state = { month: new Date().getMonth(), year: new Date().getFullYear(), selectedISO: null, availability: INLINE_AVAILABILITY };
+
+    async function loadAvailability(){
+      try{
+        const res = await fetch('availability.json', {cache:'no-store'});
+        if(res.ok){ state.availability = await res.json(); }
+      }catch(e){ /* fallback to inline */ }
+    }
+
+    function isDateUnavailable(iso){
+      const { unavailable=[], available_overrides=[] } = state.availability||{};
+      if(available_overrides.includes(iso)) return false;
+      if(unavailable.includes(iso)) return true;
+      return false;
+    }
+
+    function slotsForDate(iso){
+      const { custom_slots={}, unavailable_slots={} } = state.availability||{};
+      let slots = Array.from(custom_slots[iso] || DEFAULT_SLOTS);
+      const blocked = new Set(unavailable_slots[iso] || []);
+      slots = slots.filter(s => !blocked.has(s));
+
+      // If date is today, remove slots that have already passed (30 min buffer)
+      const todayISO = toISO(new Date());
+      if(iso === todayISO){
+        const now = new Date();
+        slots = slots.filter(s => {
+          const [h,m] = s.split(':').map(Number);
+          const slotTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+          return slotTime.getTime() - now.getTime() > 30*60*1000;
+        });
+      }
+
+      return slots;
+    }
+
+    function populateTimeSelect(iso){
+      timeSelect.innerHTML = '';
+      const slots = slotsForDate(iso);
+      if(!slots.length){
+        const o = document.createElement('option');
+        o.value=''; o.textContent='No time slots available'; o.disabled=true; o.selected=true;
+        timeSelect.appendChild(o);
+        return;
+      }
+      const prompt = document.createElement('option');
+      prompt.value=''; prompt.textContent='Select a time'; prompt.disabled=true; prompt.selected=true;
+      timeSelect.appendChild(prompt);
+      slots.forEach(t => { const o=document.createElement('option'); o.value=t; o.textContent=t; timeSelect.appendChild(o); });
+    }
+
+    function renderCalendar(){
+      calendarEl.innerHTML = '';
+      const header = document.createElement('div'); header.className='cal-header';
+      const title = document.createElement('h3'); title.style.margin='0';
+      const d = new Date(state.year, state.month, 1);
+      const monthName = d.toLocaleString('en-GB',{month:'long', year:'numeric'});
+      title.textContent = monthName;
+      const nav = document.createElement('div'); nav.className='cal-nav';
+      const prev = document.createElement('button'); prev.className='btn'; prev.textContent='‹';
+      const next = document.createElement('button'); next.className='btn'; next.textContent='›';
+      prev.onclick = ()=>{ const m = new Date(state.year, state.month-1, 1); state.month=m.getMonth(); state.year=m.getFullYear(); renderCalendar(); };
+      next.onclick = ()=>{ const m = new Date(state.year, state.month+1, 1); state.month=m.getMonth(); state.year=m.getFullYear(); renderCalendar(); };
+      nav.append(prev,next);
+      header.append(title,nav);
+
+      const grid = document.createElement('div'); grid.className='cal-grid';
+      const dows = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      dows.forEach(x=>{ const s=document.createElement('div'); s.className='dow'; s.textContent=x; grid.appendChild(s); });
+
+      const first = new Date(state.year, state.month, 1);
+      const startDay = (first.getDay()+6)%7; // 0 = Monday
+      const daysInMonth = new Date(state.year, state.month+1, 0).getDate();
+      const prevDays = startDay;
+      const totalCells = Math.ceil((prevDays + daysInMonth)/7)*7;
+      const todayISO = toISO(new Date());
+
+      for(let i=0;i<totalCells;i++){
+        const cell = document.createElement('div'); cell.className='day';
+        const dayNum = i - prevDays + 1;
+        let dateObj, inMonth=true;
+        if(dayNum < 1){ dateObj = new Date(state.year, state.month, dayNum); inMonth=false; cell.classList.add('muted'); }
+        else if(dayNum > daysInMonth){ dateObj = new Date(state.year, state.month, dayNum); inMonth=false; cell.classList.add('muted'); }
+        else { dateObj = new Date(state.year, state.month, dayNum); }
+
+        const iso = toISO(dateObj);
+        cell.textContent = dateObj.getDate();
+
+        const isPast = new Date(iso) < new Date(todayISO);
+        const wholeDayBlocked = isDateUnavailable(iso);
+        const noSlots = slotsForDate(iso).length === 0;
+        const blocked = isPast || wholeDayBlocked || noSlots;
+        if(blocked) cell.classList.add('unavailable');
+
+        if(inMonth && !blocked){
+          cell.onclick = ()=>{
+            state.selectedISO = iso;
+            document.querySelectorAll('.day.selected').forEach(x=>x.classList.remove('selected'));
+            cell.classList.add('selected');
+            const uk = toUK(new Date(iso));
+            document.getElementById('date').value = uk;
+            populateTimeSelect(iso);
+          };
+        }
+        if(state.selectedISO === iso) cell.classList.add('selected');
+
+        grid.appendChild(cell);
+      }
+
+      calendarEl.append(header, grid);
+    }
+
+    // -------- BOOKING FORM HANDLER --------
+    document.getElementById('bookingForm').addEventListener('submit', (e)=>{
+      const dateVal = document.getElementById('date').value.trim();
+      const timeVal = document.getElementById('time').value.trim();
+      if(!dateVal){ e.preventDefault(); alert('Select a date from the calendar first.'); return; }
+      if(!timeVal){ e.preventDefault(); alert('Pick a time slot.'); return; }
+    });
+
+    // -------- INIT --------
+    document.getElementById('year').textContent = new Date().getFullYear();
+    renderGallery();
+    loadAvailability().then(()=>{ renderCalendar(); if(state.selectedISO) populateTimeSelect(state.selectedISO); }).catch(renderCalendar);
+  </script>
 </body>
 </html>
